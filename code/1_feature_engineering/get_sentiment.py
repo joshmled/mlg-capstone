@@ -54,7 +54,7 @@ def get_sentiment(spacy_doc, nlp, rmv_ents = True):
 
 def get_sent_feats(source, nlp = spacy.load('en_core_web_sm')):
     print("Getting sentiments for", source)
-    file_spc = open(feat_dir + source + '.spc', 'rb')
+    file_spc = open(feat_dir + source + '.spacy', 'rb')
     spacy_docs = pickle.load(file_spc)
     file_spc.close()
     return(spacy_docs.apply(get_sentiment, nlp = nlp))

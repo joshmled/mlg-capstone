@@ -41,7 +41,7 @@ def get_ents(source, spacy_overwrite = False,
     if spacy_overwrite:
         spc_docs = build_spacy_docs(data, source, nlp)
     else:
-        file_spc_docs = open(feat_dir + source + '.spc', 'rb')
+        file_spc_docs = open(feat_dir + source + '.spacy', 'rb')
         spc_docs = pickle.load(file_spc_docs)
         file_spc_docs.close()
     print('Getting entities for statuses:', source)
@@ -59,7 +59,7 @@ def get_ents(source, spacy_overwrite = False,
 for i in status_files.index:
     status_data = pd.read_csv(status_files_full[i])
     spc_docs = build_spacy_docs(status_data, sources[i])
-    file_spc_docs = open(feat_dir + sources[i] + '.spc', 'wb')
+    file_spc_docs = open(feat_dir + sources[i] + '.spacy', 'wb')
     pickle.dump(spc_docs, file_spc_docs)
     file_spc_docs.close()    
     ents = get_ents(sources[i], data = status_data)
