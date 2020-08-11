@@ -1,5 +1,9 @@
 
 data/1_features/*
 data/1_features/**
+data/2_models/*
+data/2_models/**
+data/2_models
 data/3_predictions/*
 data/3_predictions/**
+

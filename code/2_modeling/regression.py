@@ -51,9 +51,12 @@ for source in sources:
     model.fit(X_train, y_train)
     # Get R^2 metric, coefficients, and predictions for the test set
     train_r2 = model.score(X_train, y_train)
-    coefs = model.coef_
-    sent_coefs = coefs[:,-1]
+    coef = model.coef_
+    sent_coef = coef[:,-1]
     pred_y = model.predict(X_test)
+    coefs = {}
+    coefs['coef'] = coef
+    coefs['names'] = keeper_cols
     # Save outputs
     file_coefs = open(mod_dir + 'regression/' + source + '.coefs', 'wb')
     file_mod = open(mod_dir + 'regression/' + source + '.regress', 'wb')
