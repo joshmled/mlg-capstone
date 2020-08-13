@@ -28,4 +28,4 @@ for i in status_files.index:
     reax = get_reax(statuses)
     file_reax = open(feat_dir + sources[i] + '.reax', 'wb')
     pickle.dump(reax, file_reax)
-    file_reax.close()    
+    file_reax.close()

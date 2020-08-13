@@ -16,7 +16,9 @@ from spacy.pipeline import EntityRuler
 
 nlp = en_core_web_sm.load()
 
-data_path = "C:/Users/jlederman/Documents/MLG Capstone/Data/"
+os.chdir(os.path.expanduser('~/Documents/mlg_capstone/'))
+
+data_path = "data/"
 
 type_map = {'Organisation': 'ORG', 'Person': 'PERSON', 
             'Nationality': 'NORP'}
@@ -43,7 +45,6 @@ def consolidate_row(df, row_num):
 def consolidate(df, last_b = 2):
     full_df = df[0:1]
     for index, row in df.iterrows():
-        print('index', index, 'DF shape', df.shape)
         if row.prefix == 'B':
             df2 = df
             if (index < (len(df) - last_b)):
@@ -68,6 +69,12 @@ with open(os.path.join(
     emerging_test_tr['prefix'] = emerging_test_tr.label.str.slice(0, 1)
     emerging_test_tr.label = emerging_test_tr.label.str.slice(2)
     emerging_test_tr = consolidate(emerging_test_tr)
+    emerging_test_tr = emerging_test_tr[emerging_test_tr.label.isin(
+        ['corporation', 'group', 'person', 'product'])].drop_duplicates(
+            ).reset_index(drop = True)
+    emerging_test_tr.label = emerging_test_tr.label.map(
+        {'corporation':'ORG', 'group':'ORG', 'person':'PERSON', 
+         'product':'PRODUCT'})
 
 with open(os.path.join(
         data_path, "NER_Training/wnut_emerging/emerging.dev.conll"), 
@@ -81,6 +88,12 @@ with open(os.path.join(
     emerging_dev_tr['prefix'] = emerging_dev_tr.label.str.slice(0, 1)
     emerging_dev_tr.label = emerging_dev_tr.label.str.slice(2)
     emerging_dev_tr = consolidate(emerging_dev_tr)
+    emerging_dev_tr = emerging_dev_tr[emerging_dev_tr.label.isin(
+        ['corporation', 'group', 'person', 'product'])].drop_duplicates(
+            ).reset_index(drop = True)
+    emerging_dev_tr.label = emerging_dev_tr.label.map(
+        {'corporation':'ORG', 'group':'ORG', 'person':'PERSON', 
+         'product':'PRODUCT'})
 
 with open(os.path.join(
         data_path, "NER_Training/wnut_emerging/wnut17train.conll"), 
@@ -94,8 +107,25 @@ with open(os.path.join(
     wnut_tr['prefix'] = wnut_tr.label.str.slice(0, 1)
     wnut_tr.label = wnut_tr.label.str.slice(2)
     wnut_tr = consolidate(wnut_tr, last_b = 1)
+    wnut_tr = wnut_tr[wnut_tr.label.isin(
+        ['corporation', 'group', 'person', 'product'])].drop_duplicates(
+            ).reset_index(drop = True)
+    wnut_tr.label = wnut_tr.label.map(
+        {'corporation':'ORG', 'group':'ORG', 'person':'PERSON', 
+         'product':'PRODUCT'})
+    
+
+tr_dict = [{'label': emerging_test_tr.label[i], 
+            'pattern': emerging_test_tr.token[i]} 
+           for i in range(len(emerging_test_tr))] + [
+                   {'label': emerging_dev_tr.label[i], 
+                    'pattern': emerging_dev_tr.token[i]} 
+                   for i in range(len(emerging_dev_tr))] + [
+                           {'label': wnut_tr.label[i], 
+                            'pattern': wnut_tr.token[i]} 
+                           for i in range(len(wnut_tr))]
 
 
 ruler = EntityRuler(nlp, overwrite_ents = True)
-ruler.add_patterns(bbc_tr + wiki_tr)
+ruler.add_patterns(tr_dict)
 nlp.add_pipe(ruler, after = "parser")

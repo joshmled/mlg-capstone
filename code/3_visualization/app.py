@@ -6,6 +6,7 @@ import plotly.express as px
 import pandas as pd
 import os
 import pickle
+import numpy as np
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -20,6 +21,15 @@ sources = status_files.str.split("_").apply(lambda x: x[0])
 feat_dir = "../../data/1_features/"
 regr_dir = "../../data/2_models/regression/"
 
+def arrow_icon(val):
+    if val == 0:
+        return ""
+    elif val > 0:
+        return html.B(u"\u2191", style = {'font-size': '40px', 'color':'green'})
+    else:
+        return html.B(u"\u2193", style = {'font-size': '40px', 'color':'red'})
+
+
 app.layout = html.Div(children=[
     html.H1(children='Facebook Reaction Tracker'),
 
@@ -32,15 +42,7 @@ app.layout = html.Div(children=[
         id = 'source-selection', options = [{'label': i, 'value': i} for i in sources
             ], value = sources[0]), html.Hr(), dcc.Dropdown(id = 'entity-choice'), html.Div(
             id="search-summary")]
-        )
-        #,
-    
-
-#    dcc.Graph(
-#        id='example-graph',
-#        figure=
-#    )
-])
+        )])
 
 
 @app.callback(
@@ -71,13 +73,23 @@ def return_coefs(entity_options, entity_val, source_val):
     coef_df = pickle.load(file_coef)['coef']
     file_coef.close()
     coefs = coef_df[:, entity_val]
+    reax = ["❤️ Loves", "😯 Wows", "😂 Hahas", "😢 Sads", "😡 Angrys"]
+    fig = px.bar(pd.DataFrame({'Reaction': reax, 'Effect': coefs[1:6]}), 
+        x = "Effect", y = "Reaction", orientation = "h")
+    largest = max(abs(coefs[1:6]) * 2)
+    annotations = []
+    for reac, eff in zip(reax, coefs[1:6]):
+        annotations.append(dict(xref='x', yref = 'y', x = 1.5 * eff, y = reac, xanchor = 'right',
+            text=reac + ': ' + str((eff * 100).round(2)) + '%', showarrow=False,
+                font=dict(family='Arial', size=14, color='rgb(248, 248, 255)')))
+    fig.update_layout(plot_bgcolor = '#C0C0C0', 
+        xaxis = dict(showgrid = False, showline = False, zeroline = True, 
+        showticklabels = False, range = [-largest, largest]),
+        yaxis = dict(showgrid=False, showline=False, showticklabels=False, zeroline=False),
+        annotations = annotations)
     return [html.H6(["Effect of entity ", html.B(entity_lbl), " on ", html.B(source_val)]), 
-            html.Div(["Total reax: {}".format(coefs[0].round(2)), html.Br(),
-                    "❤️ Loves: {}%".format((coefs[1] * 100).round(2)), html.Br(),
-                    "😯 Wows: {}%".format((coefs[2] * 100).round(2)), html.Br(), 
-                    "😂 Hahas: {}%".format((coefs[3] * 100).round(2)), html.Br(),
-                    "😢 Sads: {}%".format((coefs[4] * 100).round(2)), html.Br(),
-                    "😡 Angrys: {}%".format((coefs[5] * 100).round(2))])]
+            html.Div(["Total reactions: ", html.B(coefs[0].round(0)), arrow_icon(coefs[0]), html.Br(), 
+                dcc.Graph(id = 'reax-bars', figure = fig)])]
 
     
 if __name__ == '__main__':

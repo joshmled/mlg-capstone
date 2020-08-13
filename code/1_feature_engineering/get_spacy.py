@@ -9,18 +9,18 @@ from collections import Counter
 import en_core_web_sm
 
 
-os.chdir(os.path.expanduser('~/Documents/mlg_capstone'))
-
 # Set variables
-status_dir = "data/0_statuses/"
+status_dir = "../../data/0_statuses/"
 status_files = pd.Series(os.listdir(status_dir))
 status_files_full = pd.Series(status_dir + f for f in status_files)
 sources = status_files.str.split("_").apply(lambda x: x[0])
 
-feat_dir = "data/1_features/"
+feat_dir = "../../data/1_features/"
+mod_dir = "../../data/2_models/"
 
-# Set SpaCy pipeline
-#my_nlp = 
+nlp_file = open(mod_dir + 'ner/ner_spc.spacy', 'rb')
+nlp = pickle.load(nlp_file)
+nlp_file.close() 
 
 def spacy_status(status, nlp):
     if type(status) != str:
