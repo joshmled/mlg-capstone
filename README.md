@@ -12,4 +12,4 @@ Subdirectories of the `code` directory are labeled in order of use, with an addi
 * `0_data_load` contains script to read in and preprocess status input CSVs (and can later be supplemented with scripts calling the API).
 * `1_feature_engineering` contains scripts to engineer named entity dummies and sentiment score measures as input features, as well as FB reaction targets.
 * `2_modeling` runs the central regression model, using engineered features and targets.
-* `3_visualization` contains a Flask app that displays model results in an interactive dashboard.
+* `3_visualization` contains a Plotly Dash app that displays model results in an interactive dashboard.
